@@ -123,7 +123,7 @@ void write_vvf(string filename,vvf ans)
     long r=ans.size(),c=ans[0].size();
     ofstream f;
     f.open(filename);
-   
+    
     for(long i=0;i<r;i++)
     {
         for(long j=0;j<c;j++)
@@ -205,12 +205,12 @@ int main(int argc, char * argv[])
             return 0;
         }
         
-        if(strcmp(argv[2],"normal"))
+        if(strcmp(argv[2],"normal")==0)
         {
             v3=normal_conv(v1, v2, padsize);
             write_vvf(ans_file, v3);
         }
-        else if(strcmp(argv[2],"matrix_mult"))
+        else if(strcmp(argv[2],"matrix_mult")==0)
         {
             v3=mm_conv(v1, v2,padsize);
             write_vvf(ans_file, v3);
@@ -243,7 +243,7 @@ int main(int argc, char * argv[])
             relu_error();
             return 0;
         }
-       
+        
         relu(v1);
         write_vvf(ans_file, v1);
     }
@@ -368,12 +368,9 @@ int main(int argc, char * argv[])
         sigmoid(a1);
         write_vvf(ans_file, a1);
     }
-
+    
     else
         cout<<"Error: Invalid function name\n";
     
     return 0;
 }
-
-
-
