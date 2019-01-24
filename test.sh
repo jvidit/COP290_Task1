@@ -1,6 +1,6 @@
 g++ -o random_matrix_generator.out random_matrix_generator.cpp
 
-for i in 100 200 300 400
+for i in 100 150 200 250 300
 do
 	for j in 1 2 3 4 5 6 7 8 9 10
 	do
