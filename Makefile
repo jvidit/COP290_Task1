@@ -1,2 +1,2 @@
 make : 
-	g++ -o test.out main.cpp nonlinear.cpp probability.cpp pooling.cpp convolution.cpp  -L${MKLROOT}/lib -Wl,-rpath,${MKLROOT}/lib -lmkl_intel_ilp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl
+	g++ -pthread -o test.out main.cpp nonlinear.cpp probability.cpp pooling.cpp conv_helper.cpp conv_normal.cpp conv_openblas.cpp conv_mkl.cpp conv_pthread.cpp -L${MKLROOT}/lib -Wl,-rpath,${MKLROOT}/lib -lmkl_intel_ilp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl

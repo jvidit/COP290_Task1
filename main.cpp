@@ -7,7 +7,10 @@
 #include "nonlinear.h"
 #include "probability.h"
 #include "pooling.h"
-#include "convolution.h"
+#include "conv_normal.h"
+#include "conv_mkl.h"
+#include "conv_openblas.h"
+#include "conv_pthread.h"
 using namespace std;
 
 #ifndef vvf
@@ -41,7 +44,7 @@ void pr(vector<float> v)
 ///////exceptions/////////
 void conv_error()
 {
-    cout<<"Error: Invalid usage of function\nconvolution <type_of_convolution(normal/matrix_mult)> <padsize> <matrix1.txt> <matrix1_numrows> <matrix2.txt> <matrix2_numrows> \n";
+    cout<<"Error: Invalid usage of function\nconvolution <type_of_convolution(normal/pthread_mm/openblas_mm/mkl_mm)> <padsize> <matrix1.txt> <matrix1_numrows> <matrix2.txt> <matrix2_numrows> \n";
 }
 
 void relu_error()
@@ -210,11 +213,22 @@ int main(int argc, char * argv[])
             v3=normal_conv(v1, v2, padsize);
             write_vvf(ans_file, v3);
         }
-        else if(strcmp(argv[2],"matrix_mult")==0)
+        else if(strcmp(argv[2],"pthread_mm")==0)
         {
-            v3=mm_conv(v1, v2,padsize);
+            v3=pthread_conv(v1, v2,padsize);
             write_vvf(ans_file, v3);
         }
+        else if(strcmp(argv[2],"mkl_mm")==0)
+        {
+            v3=mkl_conv(v1, v2,padsize);
+            write_vvf(ans_file, v3);
+        }
+        else if(strcmp(argv[2],"openblas_mm")==0)
+        {
+            v3=openblas_conv(v1, v2,padsize);
+            write_vvf(ans_file, v3);
+        }
+        
         else
             conv_error();
     }
