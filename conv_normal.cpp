@@ -19,7 +19,7 @@ vvf normal_conv(vvf a,vvf b,long pad_size)
     if(pad_size)
         padding(a,pad_size);
     
-    flip(b);
+    //flip(b);
     
     
     long ans_size=a.size()-b.size()+1;

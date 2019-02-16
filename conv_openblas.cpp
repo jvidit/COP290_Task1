@@ -20,7 +20,7 @@ vvf openblas_conv(vvf a,vvf b,long pad_size)
     if(pad_size)
         padding(a,pad_size);
     
-    flip(b);
+    //flip(b);
     
     
     long ans_size=a.size()-b.size()+1;
@@ -76,8 +76,8 @@ vvf openblas_conv(vvf a,vvf b,long pad_size)
     
     float start=clock();
     cblas_dgemm(CblasColMajor,CblasNoTrans,CblasNoTrans,m,n,k,1,topa, m, topb, k, 0, topc, m);
-    cout<<clock()-start<<endl;
-     
+    float stop=clock()-start;
+    cout<<flush;
     vvf top_ans=arr_to_vvf(topc,m,n);
      
     free(topa);

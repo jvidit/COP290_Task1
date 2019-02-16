@@ -17,62 +17,86 @@ using namespace std;
 #define vvf vector < vector < float > >
 #endif
 
-string ans_file="ans.txt";
+#define vvvf vector < vector < vector < float > > >
 
-//////////////Printing////////////
-void pr(vvf v)
-{
-    long n=v.size();
-    long m=v[0].size();
-    
-    for(long i=0;i<n;i++)
-    {
-        for(long j=0;j<m;j++)
-            cout<<v[i][j]<<" ";
-        cout<<endl;
-    }
-}
-
-void pr(vector<float> v)
-{
-    long n=v.size();
-    for(long i=0;i<n;i++)
-        cout<<v[i]<<" ";
-    cout<<endl;
-}
-///////////////////////////////////
-///////exceptions/////////
-void conv_error()
-{
-    cout<<"Error: Invalid usage of function\nconvolution <type_of_convolution(normal/pthread_mm/openblas_mm/mkl_mm)> <padsize> <matrix1.txt> <matrix1_numrows> <matrix2.txt> <matrix2_numrows> \n";
-}
-
-void relu_error()
-{   cout<<"Error: Invalid usage of function\nrelu <matrix.txt> <matrix_numrows> <matrix_numcolums>\n";   }
-
-void tanh_error()
-{   cout<<"Error: Invalid usage of function\ntanh <matrix.txt> <matrix_numrows> <matrix_numcolumns>\n";   }
-
-void pool_error()
-{
-    cout<<"Error: Invalid usage of function\npooling <pool_type(max/avg)> <stride> <matrix.txt> <matrix_numrows>\n";
-}
-
-void softmax_error()
-{
-    cout<<"Error: Invalid usage of function\nsoftmax <vector_length> <vector.txt>\n";
-}
-
-void sigmoid_error()
-{
-    cout<<"Error: Invalid usage of function\nsigmoid <vector_length> <vector.txt>\n";
-}
-
-/////////////////////////
+string ans_file="intermediate.txt";
+string im_file="image_28.txt";
+string conv1_file="conv1.txt";
+string conv2_file="conv2.txt";
+string fc1_file="fc1.txt";
+string fc2_file="fc2.txt";
+string test_file="test_sub3.txt";
 
 
 
 ///////////////file IO//////////
+int read_vvvf(string filename,long out_channels,long kernel_size,long in_channels,vvvf arr[],float bias[])
+{
+    ifstream f;
+    float temp_val;
+   
+    f.open(filename);
+    if(!f)
+    {
+        cout<<"File "<<filename<<" not found in the same directory\n";
+        return 0;
+    }
+    
+    for(long ind=0;ind<out_channels;ind++)
+    {
+        vvvf v;
+        for(int i=0;i<in_channels;i++)
+        {
+            
+            vvf temp2;
+            for(int j=0;j<kernel_size;j++)
+            {
+                
+                vector <float> temp1;
+                for(int k=0;k<kernel_size;k++)
+                    temp1.push_back(0);
+                temp2.push_back(temp1);
+            }
+            
+            
+            for(int j=0;j<kernel_size;j++)
+            {
+                for(int k=0;k<kernel_size;k++)
+                    f>>temp2[j][k];
+            }
+            
+            v.push_back(temp2);
+            
+            
+        }
+    
+        arr[ind]=v;
+    }
+    
+    for(long ind=0;ind<out_channels;ind++)
+        f>>bias[ind];
+    f.close();
+    return 1;
+}
+
+
+void write_vvvf(string filename,vvvf v)
+{
+    ofstream f;
+    f.open(filename);
+
+    for(int i=0;i<v.size();i++)
+    {
+        for(int j=0;j<v[0].size();j++)
+        {
+            for(int k=0;k<v[0][0].size();k++)
+                f<<v[i][j][k]<<endl;
+        }
+    }
+    f.close();
+}
+
+
 int read_vvf(string filename,long r,long c,vvf&v)
 {
     ifstream f;
@@ -87,10 +111,13 @@ int read_vvf(string filename,long r,long c,vvf&v)
     for(long i=0;i<c;i++)
     {
         for(long j=0;j<r;j++)
-        {
-            f>>temp;
-            ans[j].push_back(temp);
-        }
+            ans[j].push_back(0);
+    }
+    
+    for(long i=0;i<c;i++)
+    {
+        for(long j=0;j<r;j++)
+            f>>ans[i][j];
     }
     f.close();
     
@@ -120,7 +147,6 @@ int read_vvf(string filename,long n,vector<float>&v)
     return 1;
 }
 
-
 void write_vvf(string filename,vvf ans)
 {
     long r=ans.size(),c=ans[0].size();
@@ -137,7 +163,6 @@ void write_vvf(string filename,vvf ans)
     
 }
 
-
 void write_vvf(string filename,vector<float> v)
 {
     long n=v.size();
@@ -151,240 +176,196 @@ void write_vvf(string filename,vector<float> v)
 }
 
 
-
-long tonum(string s)
+/////////////////3D functions/////////////////
+vvf threeDconv(vvvf v1,vvvf v2,float bias,string conv_type)
 {
-    stringstream convert(s);
-    long n;
+    long depth=v1.size();
+    long m=v1[0].size(),n=v2[0].size();
+    long s=m-n+1;
     
-    if(!(convert>>n))
-        n=-1;
-    if(n==-1)
+    
+    vvf ans;
+    
+    
+    
+    if(strcmp(conv_type.c_str(),"normal")==0)
+        ans=normal_conv(v1[0],v2[0],0);
+    else if(strcmp(conv_type.c_str(),"pthread")==0)
+        ans=pthread_conv(v1[0],v2[0],0);
+    else if(strcmp(conv_type.c_str(),"mkl")==0)
+        ans=mkl_conv(v1[0],v2[0],0);
+    else
+        ans=openblas_conv(v1[0],v2[0],0);
+    
+    
+    for(int ind=1;ind<depth;ind++)
     {
-        cout<<"Error: Invalid argument\n";
-        return 0;
+        vvf temp;
+        if(strcmp(conv_type.c_str(),"normal")==0)
+            temp=normal_conv(v1[ind],v2[ind],0);
+        else if(strcmp(conv_type.c_str(),"pthread")==0)
+            temp=pthread_conv(v1[ind],v2[ind],0);
+        else if(strcmp(conv_type.c_str(),"mkl")==0)
+            temp=mkl_conv(v1[ind],v2[ind],0);
+        else
+            temp=openblas_conv(v1[ind],v2[ind],0);
+        
+        for(int i=0;i<s;i++)
+        {
+            for(int j=0;j<s;j++)
+                ans[i][j]+=temp[i][j];
+        }
     }
-    return n;
     
+    for(int i=0;i<s;i++)
+    {
+        for(int j=0;j<s;j++)
+            ans[i][j]+=bias;
+    }
+    return ans;
 }
-////////////////////////////////////
+
+vvvf threeDpool(vvvf v)
+{
+    long depth=v.size();
+    long n=v[0].size();
+    
+    vvvf ans;
+
+    for(int ind=0;ind<depth;ind++)
+    {
+        vvf temp=max_pool(v[ind],2);
+        ans.push_back(temp);
+    }
+    return ans;
+}
+
+void threeDrelu(vvvf&v)
+{
+    long depth=v.size();
+    for(int ind=0;ind<depth;ind++)
+        relu(v[ind]);
+}
 
 
+
+vvvf layer_conv(string filename,vvvf in,long out_channels,long in_channels,long kernel_size,string conv_type)
+{
+    vvvf out(out_channels);
+    vvvf filter_arr[out_channels];
+    float bias[out_channels];
+    
+    
+    int a=read_vvvf(filename,out_channels,kernel_size,in_channels,filter_arr,bias);
+    
+    //write_vvf(test_file,normal_conv(in[0],filter_arr[0][0],0));
+    
+    for(long i=0;i<out_channels;i++)
+    {
+        out[i]=threeDconv(in,filter_arr[i],bias[i],conv_type);
+        //write_vvf(test_file,out[0]);
+    }
+    return out;
+}
+//////////////////////////////////////////////
 
 
 int main(int argc, char * argv[])
 {
-    vvf v1,v2,v3;
-    vector<float> a1;
-    if(argc<2)
+    
+    if(argc!=3)
     {
-        cout<<"No function specified\n";
+        cout<<"Invalid arguments\n";
         return 0;
     }
     
-    if(strcmp(argv[1],"convolution")==0)                                        //convolution
-    {
-        if(argc!=8)
-        {
-            conv_error();
-            return 0;
-        }
-        
-        long n1=tonum(argv[5]);
-        long n2=tonum(argv[7]);
-        long padsize=tonum(argv[3]);
-        if(!n1 || !n2 || padsize<0)
-        {
-            conv_error();
-            return 0;
-        }
-        
-        long t1=read_vvf(argv[4], n1, n1, v1);
-        long t2=read_vvf(argv[6], n2, n2, v2);
-        
-        if(!t1 or !t2)
-        {
-            conv_error();
-            return 0;
-        }
-        
-        if(strcmp(argv[2],"normal")==0)
-        {
-            v3=normal_conv(v1, v2, padsize);
-            write_vvf(ans_file, v3);
-        }
-        else if(strcmp(argv[2],"pthread_mm")==0)
-        {
-            v3=pthread_conv(v1, v2,padsize);
-            write_vvf(ans_file, v3);
-        }
-        else if(strcmp(argv[2],"mkl_mm")==0)
-        {
-            v3=mkl_conv(v1, v2,padsize);
-            write_vvf(ans_file, v3);
-        }
-        else if(strcmp(argv[2],"openblas_mm")==0)
-        {
-            v3=openblas_conv(v1, v2,padsize);
-            write_vvf(ans_file, v3);
-        }
-        
-        else
-            conv_error();
-    }
+    
+    string im_png=argv[1];
+    string system_call="python preprocess.py ."+im_png;
+
+    system(system_call.c_str());
+    
+    long im_size=28;
+    vvvf in1(1);
+    read_vvf(im_file,im_size,im_size,in1[0]);
+   
+    
+    ////////////Layer 1///////
+    //////in1 + filter1 -> in2/////////////
+    long out_channels1=20;
+    long in_channels1=1;
+    long kernel_size_1=5;
+    
+    vvvf in2=layer_conv(conv1_file,in1,out_channels1,in_channels1,kernel_size_1,argv[2]);
+    //////////////
+    
+    
+    //////Layer 2//////////
+    //////////in2 -> in2, pooled///////
+    in2=threeDpool(in2);
+    //////////////
     
     
     
+    ////////////Layer 3///////
+    //////in2 + filter2 -> in3/////////////
+    long out_channels2=50;
+    long in_channels2=20;
+    long kernel_size_2=5;
+    vvvf in3=layer_conv(conv2_file,in2,out_channels2,in_channels2,kernel_size_2,argv[2]);
+    //////////////
     
-    else if(strcmp(argv[1],"relu")==0)
-    {
-        if(argc!=5)
-        {
-            relu_error();
-            return 0;
-        }
-        
-        long r=tonum(argv[3]);
-        long c=tonum(argv[4]);
-        if(!r || !c)
-        {
-            relu_error();
-            return 0;
-        }
-        long t1=read_vvf(argv[2], r, c, v1);
-        if(!t1)
-        {
-            relu_error();
-            return 0;
-        }
-        
-        relu(v1);
-        write_vvf(ans_file, v1);
-    }
+    write_vvvf(test_file,in3);
     
     
     
-    else if(strcmp(argv[1],"tanh")==0)
-    {
-        if(argc!=5)
-        {
-            tanh_error();
-            return 0;
-        }
-        
-        long r=tonum(argv[3]);
-        long c=tonum(argv[4]);
-        if(!r || !c)
-        {
-            tanh_error();
-            return 0;
-        }
-        long t1=read_vvf(argv[2], r, c, v1);
-        if(!t1)
-        {
-            tanh_error();
-            return 0;
-        }
-        
-        tanh(v1);
-        write_vvf(ans_file, v1);
-    }
+    //////Layer 4//////////
+    //////////in3 -> in3, pooled///////
+    in3=threeDpool(in3);
+    //////////////
+    
+    
+   
+    ////////////Layer 5///////
+    //////in3 + fc1 -> in4/////////////
+    long out_channels3=500;
+    long in_channels3=50;
+    long kernel_size_3=4;
+    vvvf in4=layer_conv(fc1_file,in3,out_channels3,in_channels3,kernel_size_3,argv[2]);
+    threeDrelu(in4);
+    //////////////
+   
+
+    
+    ////////////Layer 6//////
+    //////in4 + fc2 -> in5////////
+    long out_channels4=10;
+    long in_channels4=500;
+    long kernel_size_4=1;
+    vvvf in5=layer_conv(fc2_file,in4,out_channels4,in_channels4,kernel_size_4,argv[2]);
+    ////////
+   
+
+    vector < float > ans_prob (out_channels4);
+    vector < pair<float,int> > ans_prob_final (out_channels4);
+    
+    for(int i=0;i<out_channels4;i++)
+        ans_prob[i]=in5[i][0][0];
+    softmax(ans_prob);
+
+    
+    for(int i=0;i<out_channels4;i++)
+        ans_prob_final[i]=make_pair(ans_prob[i],i);
     
     
     
-    else if(strcmp(argv[1],"pooling")==0)
-    {
-        if(argc!=6)
-        {
-            pool_error();
-            return 0;
-        }
-        
-        long stride=tonum(argv[3]), n=tonum(argv[5]);
-        
-        if(!stride || !n)
-        {
-            pool_error();
-            return 0;
-        }
-        
-        long t1=read_vvf(argv[4], n, n, v1);
-        if(!t1)
-        {
-            pool_error();
-            return 0;
-        }
-        
-        if(strcmp(argv[2],"max")==0)
-        {
-            v1=max_pool(v1, stride);
-            write_vvf(ans_file, v1);
-        }
-        else if(strcmp(argv[2], "avg")==0)
-        {
-            v1=avg_pool(v1, stride);
-            write_vvf(ans_file, v1);
-        }
-        else
-            pool_error();
-    }
+    sort(ans_prob_final.begin(),ans_prob_final.end());
     
     
-    else if(strcmp(argv[1], "softmax")==0)
-    {
-        if(argc!=4)
-        {
-            softmax_error();
-            return 0;
-        }
-        
-        long n=tonum(argv[2]);
-        if(!n)
-        {
-            softmax_error();
-            return 0;
-        }
-        
-        long t1=read_vvf(argv[3], n, a1);
-        if(!t1)
-        {
-            softmax_error();
-            return 0;
-        }
-        
-        softmax(a1);
-        write_vvf(ans_file, a1);
-    }
+    cout<<"TOP CLASSES\n";
+    for(int i=9;i>=5;i--)
+        cout<<ans_prob_final[i].second<<" "<<ans_prob_final[i].first*100<<endl;
     
-    
-    else if(strcmp(argv[1], "sigmoid")==0)
-    {
-        if(argc!=4)
-        {
-            sigmoid_error();
-            return 0;
-        }
-        
-        long n=tonum(argv[2]);
-        if(!n)
-        {
-            sigmoid_error();
-            return 0;
-        }
-        
-        long t1=read_vvf(argv[3], n, a1);
-        if(!t1)
-        {
-            sigmoid_error();
-            return 0;
-        }
-        
-        sigmoid(a1);
-        write_vvf(ans_file, a1);
-    }
-    
-    else
-        cout<<"Error: Invalid function name\n";
     
     return 0;
 }

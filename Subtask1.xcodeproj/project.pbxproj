@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		AC798C9421E733BD00AF948A /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AC798C9321E733BD00AF948A /* main.cpp */; };
-		ACB75BB321F485EE008931BA /* convolution.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ACB75BAC21F485EE008931BA /* convolution.cpp */; };
 		ACB75BB421F485EE008931BA /* pooling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ACB75BB021F485EE008931BA /* pooling.cpp */; };
 		ACB75BB521F485EE008931BA /* nonlinear.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ACB75BB121F485EE008931BA /* nonlinear.cpp */; };
 		ACB75BB621F485EE008931BA /* probability.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ACB75BB221F485EE008931BA /* probability.cpp */; };
@@ -29,8 +28,6 @@
 /* Begin PBXFileReference section */
 		AC798C9021E733BD00AF948A /* Subtask1 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Subtask1; sourceTree = BUILT_PRODUCTS_DIR; };
 		AC798C9321E733BD00AF948A /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		ACB75BAB21F485EE008931BA /* convolution.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = convolution.h; sourceTree = "<group>"; };
-		ACB75BAC21F485EE008931BA /* convolution.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = convolution.cpp; sourceTree = "<group>"; };
 		ACB75BAD21F485EE008931BA /* nonlinear.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nonlinear.h; sourceTree = "<group>"; };
 		ACB75BAE21F485EE008931BA /* probability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = probability.h; sourceTree = "<group>"; };
 		ACB75BAF21F485EE008931BA /* pooling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pooling.h; sourceTree = "<group>"; };
@@ -69,8 +66,6 @@
 		AC798C9221E733BD00AF948A /* Subtask1 */ = {
 			isa = PBXGroup;
 			children = (
-				ACB75BAB21F485EE008931BA /* convolution.h */,
-				ACB75BAC21F485EE008931BA /* convolution.cpp */,
 				ACB75BAD21F485EE008931BA /* nonlinear.h */,
 				ACB75BAE21F485EE008931BA /* probability.h */,
 				ACB75BAF21F485EE008931BA /* pooling.h */,
@@ -140,7 +135,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				ACB75BB521F485EE008931BA /* nonlinear.cpp in Sources */,
-				ACB75BB321F485EE008931BA /* convolution.cpp in Sources */,
 				AC798C9421E733BD00AF948A /* main.cpp in Sources */,
 				ACB75BB421F485EE008931BA /* pooling.cpp in Sources */,
 				ACB75BB621F485EE008931BA /* probability.cpp in Sources */,

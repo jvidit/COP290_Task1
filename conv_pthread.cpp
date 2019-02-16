@@ -107,7 +107,7 @@ vvf pthread_conv(vvf a,vvf b,long pad_size)
     if(pad_size)
         padding(a,pad_size);
     
-    flip(b);
+    //flip(b);
     
     
     long ans_size=a.size()-b.size()+1;
@@ -163,7 +163,7 @@ vvf pthread_conv(vvf a,vvf b,long pad_size)
     
     double start=clock();
     topc=pthread_dgemm(topa,topb,m,k,n);
-    cout<<clock()-start<<endl;
+    //cout<<clock()-start<<endl;
     
     vvf top_ans=arr_to_vvf(topc,m,n);
     

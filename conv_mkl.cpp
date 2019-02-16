@@ -16,11 +16,10 @@ using namespace std;
 
 vvf mkl_conv(vvf a,vvf b,long pad_size)
 {
-    
     if(pad_size)
         padding(a,pad_size);
     
-    flip(b);
+    //flip(b);
     
     
     long ans_size=a.size()-b.size()+1;
@@ -60,11 +59,9 @@ vvf mkl_conv(vvf a,vvf b,long pad_size)
         }
     }
     
-
-    
     long m=top_a.size(),k=top_a[0].size(),n=top_b[0].size();
     
-    
+
     double *topa,*topb,*topc;
     topa = (double *)malloc( m*k*sizeof(double));
     topb = (double *)malloc( k*n*sizeof(double));
@@ -74,10 +71,11 @@ vvf mkl_conv(vvf a,vvf b,long pad_size)
     vvf_to_arr(top_a,topa);
     vvf_to_arr(top_b,topb);
     
+    
     float start=clock();
     cblas_dgemm(CblasColMajor,CblasNoTrans,CblasNoTrans,m,n,k,1,topa, m, topb, k, 0, topc, m);
-    cout<<clock()-start<<endl;
-     
+    float stop=clock()-start;
+    cout<<flush;
     vvf top_ans=arr_to_vvf(topc,m,n);
      
     free(topa);
